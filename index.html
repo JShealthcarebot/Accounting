@@ -294,7 +294,11 @@
 
         <div class="field">
           <label for="categorySelect">分類帳本</label>
-          <select id="categorySelect"></select>
+          <div class="flex-row" style="gap:6px; margin-bottom:0;">
+            <select id="categorySelect" style="flex:1;"></select>
+            <button type="button" class="btn-secondary" id="addCategoryBtn" style="padding:6px 10px; font-size:0.8rem;">＋</button>
+          </div>
+          <div class="small-text">按「＋」可新增自訂分類帳本</div>
         </div>
       </div>
 
@@ -308,18 +312,6 @@
           <input type="text" id="noteInput" placeholder="例如：午餐、Uber、薪水、獎金…">
         </div>
       </div>
-
-      <div class="section-title" style="margin-top:4px;">自訂分類帳本</div>
-      <div class="flex-row">
-        <div class="field">
-          <label for="newCategoryInput">新增分類名稱</label>
-          <input type="text" id="newCategoryInput" placeholder="例如：旅遊、投資帳、澳門專用帳本…">
-        </div>
-        <div class="field" style="align-self:flex-end;">
-          <button class="btn-secondary" id="addCategoryBtn">＋ 新增分類</button>
-        </div>
-      </div>
-      <div class="small-text">提示：分類清單會儲存在瀏覽器（localStorage），下次打開還會在。</div>
 
       <div class="btn-group">
         <button class="btn-primary" id="addRecordBtn">＋ 新增紀錄</button>
@@ -448,10 +440,9 @@
     const nowBtn = document.getElementById("nowBtn");
     const typeInput = document.getElementById("typeInput");
     const categorySelect = document.getElementById("categorySelect");
+    const addCategoryBtn = document.getElementById("addCategoryBtn");
     const amountInput = document.getElementById("amountInput");
     const noteInput = document.getElementById("noteInput");
-    const newCategoryInput = document.getElementById("newCategoryInput");
-    const addCategoryBtn = document.getElementById("addCategoryBtn");
     const addRecordBtn = document.getElementById("addRecordBtn");
     const clearAllBtn = document.getElementById("clearAllBtn");
     const recordsTbody = document.getElementById("recordsTbody");
@@ -722,11 +713,13 @@
       });
     }
 
-    // 新增分類
+    // 新增分類（用 prompt）
     function handleAddCategory() {
-      const name = newCategoryInput.value.trim();
+      let name = prompt("請輸入新的分類名稱：");
+      if (name === null) return; // 按取消
+      name = name.trim();
       if (!name) {
-        alert("請輸入分類名稱");
+        alert("分類名稱不能是空白");
         return;
       }
       if (categories.includes(name)) {
@@ -737,7 +730,6 @@
       saveCategories();
       renderCategoryOptions();
       categorySelect.value = name;
-      newCategoryInput.value = "";
     }
 
     // 新增紀錄
@@ -838,7 +830,7 @@
       renderCategoryOptions();
       setNowToInput();
       initRangeButtons();
-      renderRecords();      // 內部會順便更新總計與區間統計
+      renderRecords();
 
       nowBtn.addEventListener("click", setNowToInput);
       addCategoryBtn.addEventListener("click", handleAddCategory);
