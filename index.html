@@ -12,34 +12,117 @@
     body {
       margin: 0;
       padding: 16px;
-      background: linear-gradient(135deg, #f5f7ff, #e3f6ff);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(99, 179, 237, 0.18), transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(125, 211, 252, 0.2), transparent 60%),
+        linear-gradient(135deg, #f4f7ff, #e6f7ff);
       display: flex;
       justify-content: center;
     }
-    .container {
+    .app-shell {
       width: 100%;
-      max-width: 900px;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 18px 14px 22px;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+      max-width: 960px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.12),
+        0 0 0 1px rgba(148, 163, 184, 0.14);
+      backdrop-filter: blur(12px);
+      padding: 16px 18px 18px;
     }
-    h1 {
-      margin: 0 0 4px;
-      font-size: 1.5rem;
-      text-align: center;
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 4px 4px 10px;
+      border-bottom: 1px dashed #d4dbe8;
+      margin-bottom: 8px;
+    }
+    .app-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: conic-gradient(from 210deg, #4f46e5, #22c55e, #0ea5e9, #4f46e5);
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .app-title-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .app-title-text h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: 0.04em;
+      color: #0f172a;
     }
     .subtitle {
-      text-align: center;
-      font-size: 0.85rem;
-      color: #666;
-      margin-bottom: 14px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+    .app-badge {
+      font-size: 0.7rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.06);
+      color: #2563eb;
+      border: 1px solid rgba(129, 140, 248, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .section-card {
+      background: #f9fbff;
+      border-radius: 18px;
+      padding: 10px 12px 12px;
+      border: 1px solid #e0e7ff;
+      margin-bottom: 10px;
+    }
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 6px;
     }
     .section-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-weight: 600;
-      margin: 8px 0;
+      font-size: 0.98rem;
+      color: #111827;
+    }
+    .section-title span.icon {
       font-size: 1rem;
     }
+    .section-tip {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
     .flex-row {
       display: flex;
       flex-wrap: wrap;
@@ -48,61 +131,102 @@
     }
     .field {
       flex: 1;
-      min-width: 140px;
+      min-width: 150px;
       display: flex;
       flex-direction: column;
       gap: 3px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
     }
     label {
-      color: #444;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
+    label .label-tag {
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.1);
+      color: #2563eb;
+    }
+
     input[type="datetime-local"],
     input[type="date"],
     input[type="number"],
     input[type="text"],
     select {
       padding: 7px 9px;
-      border-radius: 10px;
-      border: 1px solid #d0d7e2;
+      border-radius: 11px;
+      border: 1px solid #d1d5db;
       outline: none;
       font-size: 0.9rem;
-      background-color: #f8fbff;
-      transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+      background-color: #f9fafb;
+      transition:
+        border-color 0.15s,
+        box-shadow 0.15s,
+        background-color 0.15s,
+        transform 0.08s;
     }
     input:focus,
     select:focus {
-      border-color: #4a8df6;
-      box-shadow: 0 0 0 2px rgba(74, 141, 246, 0.2);
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.3);
       background-color: #ffffff;
+      transform: translateY(-0.5px);
     }
+
     button {
       border: none;
       border-radius: 999px;
       padding: 8px 15px;
       font-size: 0.9rem;
       cursor: pointer;
-      transition: transform 0.08s, box-shadow 0.08s, background-color 0.2s;
+      transition:
+        transform 0.08s,
+        box-shadow 0.12s,
+        background-color 0.2s,
+        opacity 0.1s;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
     }
     button:active {
-      transform: translateY(1px);
+      transform: translateY(1px) scale(0.99);
       box-shadow: none;
     }
     .btn-primary {
-      background: linear-gradient(135deg, #4a8df6, #6bc5ff);
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
       color: #fff;
-      box-shadow: 0 6px 14px rgba(74, 141, 246, 0.4);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.45);
+    }
+    .btn-primary:hover {
+      opacity: 0.96;
     }
     .btn-secondary {
-      background: #eef3ff;
-      color: #345;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+      background: #eef2ff;
+      color: #1f2933;
+      box-shadow: 0 4px 10px rgba(148, 163, 184, 0.25);
+    }
+    .btn-secondary:hover {
+      background: #e0e7ff;
     }
     .btn-danger {
-      background: #ff6b6b;
+      background: #f97373;
+      background: linear-gradient(135deg, #f97373, #ef4444);
       color: #fff;
-      box-shadow: 0 4px 10px rgba(255, 107, 107, 0.4);
+      box-shadow: 0 5px 14px rgba(239, 68, 68, 0.5);
+    }
+    .btn-danger:hover {
+      opacity: 0.95;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: #6b7280;
+      padding-inline: 8px;
+      box-shadow: none;
     }
     .btn-group {
       display: flex;
@@ -112,121 +236,49 @@
       margin-top: 4px;
       margin-bottom: 4px;
     }
+
     hr {
       border: none;
       border-top: 1px dashed #d2d8e5;
-      margin: 12px 0;
-    }
-    .records-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    .records-header-title {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-    }
-    thead {
-      background: #f5f7ff;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-    th, td {
-      padding: 6px 4px;
-      text-align: center;
-      border-bottom: 1px solid #edf0fa;
-    }
-    th {
-      font-weight: 600;
-      color: #555;
-    }
-    tbody tr:nth-child(odd) {
-      background: #fafbff;
-    }
-    tbody tr:hover {
-      background: #eef4ff;
-    }
-    .note-cell {
-      text-align: left;
-    }
-    .type-income {
-      color: #0b9b5c;
-      font-weight: 600;
-    }
-    .type-expense {
-      color: #e45a5a;
-      font-weight: 600;
-    }
-    .no-data {
-      text-align: center;
-      padding: 8px;
-      color: #777;
-    }
-    .small-text {
-      font-size: 0.75rem;
-      color: #777;
+      margin: 10px 0;
     }
 
-    /* 總計卡片（全部紀錄） */
-    .summary-card {
-      margin-top: 6px;
-      margin-bottom: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #e3f6ff, #f5f7ff);
-      border: 1px solid #d0e6ff;
+    .summary-row {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.85rem;
     }
-    .summary-item {
-      min-width: 120px;
+    .summary-chip {
+      flex: 1;
+      min-width: 140px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: #fefefe;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.82rem;
     }
     .summary-label {
-      color: #666;
-      margin-bottom: 2px;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
     }
     .summary-value {
       font-weight: 600;
       font-size: 1rem;
     }
     .summary-income {
-      color: #0b9b5c;
+      color: #059669;
     }
     .summary-expense {
-      color: #e45a5a;
+      color: #dc2626;
     }
     .summary-balance {
-      color: #1e3a8a;
-    }
-
-    /* 區間篩選區 */
-    .filter-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    .filter-row .field {
-      min-width: 110px;
-    }
-    .hint-text {
-      font-size: 0.75rem;
-      color: #888;
-      margin-top: 2px;
+      color: #1d4ed8;
     }
 
     /* 時間範圍小按鈕 */
@@ -237,31 +289,135 @@
       margin-top: 4px;
     }
     .btn-chip {
-      padding: 5px 10px;
+      padding: 4px 10px;
       border-radius: 999px;
-      background: #f1f4ff;
-      color: #345;
-      font-size: 0.8rem;
-      border: 1px solid transparent;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      background: #f3f4ff;
+      color: #4b5563;
+      font-size: 0.78rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: 0 2px 6px rgba(148, 163, 184, 0.25);
+    }
+    .btn-chip:hover {
+      background: #e5e7ff;
     }
     .btn-chip-active {
-      background: #4a8df6;
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
       color: #fff;
-      border-color: #2f6fe0;
-      box-shadow: 0 3px 10px rgba(74,141,246,0.4);
+      border-color: rgba(79, 70, 229, 0.9);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
     }
 
-    @media (max-width: 600px) {
-      .container {
-        padding: 14px 10px 18px;
-        border-radius: 18px;
+    .hint-text {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .records-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .records-header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .records-header-title-main {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .records-header-sub {
+      font-size: 0.74rem;
+      color: #6b7280;
+    }
+
+    .table-wrapper {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+      background: #ffffff;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    thead {
+      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    th, td {
+      padding: 6px 6px;
+      text-align: center;
+      border-bottom: 1px solid #edf0fa;
+    }
+    th {
+      font-weight: 600;
+      color: #4b5563;
+    }
+    tbody tr:nth-child(odd) {
+      background: #f9fafb;
+    }
+    tbody tr:nth-child(even) {
+      background: #ffffff;
+    }
+    tbody tr:hover {
+      background: #e5f0ff;
+    }
+    .note-cell {
+      text-align: left;
+    }
+    .type-income {
+      color: #059669;
+      font-weight: 600;
+    }
+    .type-expense {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    .no-data {
+      text-align: center;
+      padding: 8px;
+      color: #6b7280;
+      font-size: 0.8rem;
+    }
+    .small-text {
+      font-size: 0.74rem;
+      color: #6b7280;
+    }
+    .footer-note {
+      text-align: right;
+      margin-top: 6px;
+      color: #9ca3af;
+      font-size: 0.7rem;
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        padding: 14px 10px 16px;
+        border-radius: 20px;
       }
-      h1 {
-        font-size: 1.35rem;
+      .app-title-wrap {
+        gap: 8px;
       }
-      .flex-row {
-        flex-direction: column;
+      .logo-circle {
+        width: 34px;
+        height: 34px;
+      }
+      .app-title-text h1 {
+        font-size: 1.2rem;
       }
       table {
         font-size: 0.78rem;
@@ -270,22 +426,50 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>個人記帳本</h1>
-    <div class="subtitle">記下每一筆收入與支出，讓錢錢知道自己要去哪 💸</div>
+  <div class="app-shell">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="app-title-wrap">
+        <div class="logo-circle">
+          <div class="logo-inner">💰</div>
+        </div>
+        <div class="app-title-text">
+          <h1>個人記帳本</h1>
+          <div class="subtitle">記下每一筆收入與支出，讓錢錢知道自己要去哪 💸</div>
+        </div>
+      </div>
+      <div class="app-badge">
+        <span>📅</span> 今日重點：掌握現金流
+      </div>
+    </header>
 
-    <!-- 新增紀錄區 -->
-    <div class="section-title">新增紀錄</div>
-    <section>
+    <!-- 新增紀錄 -->
+    <section class="section-card">
+      <div class="section-title-row">
+        <div class="section-title">
+          <span class="icon">📝</span>
+          <span>新增紀錄</span>
+        </div>
+        <button class="btn-ghost" type="button" id="quickTodayBtn">⏱ 一鍵填入「現在」日期</button>
+      </div>
+
       <div class="flex-row">
         <div class="field">
-          <label for="datetimeInput">日期時間</label>
+          <label for="datetimeInput">
+            日期時間
+            <span class="label-tag">必填</span>
+          </label>
           <input type="datetime-local" id="datetimeInput">
-          <button class="btn-secondary" id="nowBtn" style="margin-top:3px;">使用現在時間</button>
+          <button class="btn-secondary" id="nowBtn" style="margin-top:3px;">
+            ⏰ 使用現在時間
+          </button>
         </div>
 
         <div class="field">
-          <label for="typeInput">類型</label>
+          <label for="typeInput">
+            類型
+            <span class="label-tag">收入 / 支出</span>
+          </label>
           <select id="typeInput">
             <option value="expense">支出</option>
             <option value="income">收入</option>
@@ -293,10 +477,15 @@
         </div>
 
         <div class="field">
-          <label for="categorySelect">分類帳本</label>
+          <label for="categorySelect">
+            分類帳本
+            <span class="label-tag">可自訂</span>
+          </label>
           <div class="flex-row" style="gap:6px; margin-bottom:0;">
             <select id="categorySelect" style="flex:1;"></select>
-            <button type="button" class="btn-secondary" id="addCategoryBtn" style="padding:6px 10px; font-size:0.8rem;">＋</button>
+            <button type="button" class="btn-secondary" id="addCategoryBtn" style="padding:6px 10px; font-size:0.8rem;">
+              ＋
+            </button>
           </div>
           <div class="small-text">按「＋」可新增自訂分類帳本</div>
         </div>
@@ -304,7 +493,10 @@
 
       <div class="flex-row">
         <div class="field">
-          <label for="amountInput">金額（正數）</label>
+          <label for="amountInput">
+            金額（正數）
+            <span class="label-tag">必填</span>
+          </label>
           <input type="number" id="amountInput" min="0" step="1" placeholder="例如 120">
         </div>
         <div class="field" style="flex:2;">
@@ -314,33 +506,52 @@
       </div>
 
       <div class="btn-group">
-        <button class="btn-primary" id="addRecordBtn">＋ 新增紀錄</button>
+        <button class="btn-primary" id="addRecordBtn">
+          ➕ 新增紀錄
+        </button>
       </div>
     </section>
 
-    <hr>
+    <!-- 全部總計 -->
+    <section class="section-card">
+      <div class="section-title-row">
+        <div class="section-title">
+          <span class="icon">📊</span>
+          <span>全部紀錄總計</span>
+        </div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-chip">
+          <div class="summary-label">
+            <span>⬆️ 總收入</span>
+          </div>
+          <div class="summary-value summary-income" id="totalIncome">0</div>
+        </div>
+        <div class="summary-chip">
+          <div class="summary-label">
+            <span>⬇️ 總支出</span>
+          </div>
+          <div class="summary-value summary-expense" id="totalExpense">0</div>
+        </div>
+        <div class="summary-chip">
+          <div class="summary-label">
+            <span>💼 總結餘（收入－支出）</span>
+          </div>
+          <div class="summary-value summary-balance" id="totalBalance">0</div>
+        </div>
+      </div>
+    </section>
 
-    <!-- 全部紀錄總計 -->
-    <div class="section-title">全部紀錄總計</div>
-    <div class="summary-card">
-      <div class="summary-item">
-        <div class="summary-label">總收入</div>
-        <div class="summary-value summary-income" id="totalIncome">0</div>
+    <!-- 區間 & 分類總計 -->
+    <section class="section-card">
+      <div class="section-title-row">
+        <div class="section-title">
+          <span class="icon">📆</span>
+          <span>區間 & 分類總計</span>
+        </div>
       </div>
-      <div class="summary-item">
-        <div class="summary-label">總支出</div>
-        <div class="summary-value summary-expense" id="totalExpense">0</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-label">總結餘（收入－支出）</div>
-        <div class="summary-value summary-balance" id="totalBalance">0</div>
-      </div>
-    </div>
 
-    <!-- 區間 + 分類總計 -->
-    <div class="section-title">區間 & 分類總計</div>
-    <section>
-      <div class="filter-row">
+      <div class="flex-row">
         <div class="field" style="flex-basis:100%;">
           <label>時間範圍</label>
           <div class="range-buttons">
@@ -360,55 +571,64 @@
           </div>
         </div>
         <div class="field" style="align-self:flex-end; min-width:auto;">
-          <button class="btn-secondary" id="applyRangeBtn">套用篩選</button>
+          <button class="btn-secondary" id="applyRangeBtn">🔍 套用篩選</button>
         </div>
       </div>
-      <div class="hint-text">說明：預設為「今天」。可切換今年、本月、全部或自訂日期，下面會顯示該期間各分類的收入、支出與結餘。</div>
+      <div class="hint-text">
+        預設為「今天」。可切換今年、本月、全部或自訂日期，下方會顯示該期間各分類的收入、支出與結餘。
+      </div>
 
-      <!-- 區間總計小卡 -->
-      <div class="summary-card" id="rangeSummaryCard">
-        <div class="summary-item">
+      <div class="summary-row" style="margin-top:8px;">
+        <div class="summary-chip">
           <div class="summary-label">此區間收入</div>
           <div class="summary-value summary-income" id="rangeIncome">0</div>
         </div>
-        <div class="summary-item">
+        <div class="summary-chip">
           <div class="summary-label">此區間支出</div>
           <div class="summary-value summary-expense" id="rangeExpense">0</div>
         </div>
-        <div class="summary-item">
+        <div class="summary-chip">
           <div class="summary-label">此區間結餘</div>
           <div class="summary-value summary-balance" id="rangeBalance">0</div>
         </div>
       </div>
 
-      <!-- 區間內各分類統計 -->
-      <table>
-        <thead>
-          <tr>
-            <th>分類帳本</th>
-            <th>收入</th>
-            <th>支出</th>
-            <th>結餘</th>
-          </tr>
-        </thead>
-        <tbody id="categorySummaryTbody">
-          <!-- 動態填入 -->
-        </tbody>
-      </table>
-      <div id="categorySummaryHint" class="no-data" style="display:none;">此區間內目前沒有任何紀錄。</div>
+      <div class="table-wrapper" style="margin-top:8px;">
+        <table>
+          <thead>
+            <tr>
+              <th>分類帳本</th>
+              <th>收入</th>
+              <th>支出</th>
+              <th>結餘</th>
+            </tr>
+          </thead>
+          <tbody id="categorySummaryTbody">
+            <!-- 動態填入 -->
+          </tbody>
+        </table>
+      </div>
+      <div id="categorySummaryHint" class="no-data" style="display:none;">
+        此區間內目前沒有任何紀錄。
+      </div>
     </section>
 
-    <hr>
-
     <!-- 紀錄列表 -->
-    <div class="records-header">
-      <div class="records-header-title">紀錄列表（依時間範圍）</div>
-      <button class="btn-danger" id="clearAllBtn">清空全部紀錄</button>
-    </div>
+    <section class="section-card">
+      <div class="records-header">
+        <div class="records-header-title">
+          <div class="records-header-title-main">
+            <span>📚 紀錄列表（依時間範圍）</span>
+          </div>
+          <div class="records-header-sub">
+            會跟上方時間範圍同步切換顯示
+          </div>
+        </div>
+        <button class="btn-danger" id="clearAllBtn">🧹 清空全部紀錄</button>
+      </div>
 
-    <section>
-      <!-- 列表時間範圍按鈕（與上面共用同一範圍） -->
-      <div class="filter-row">
+      <!-- 列表時間範圍按鈕（與上面共用） -->
+      <div class="flex-row">
         <div class="field" style="flex-basis:100%;">
           <label>列表時間範圍</label>
           <div class="range-buttons">
@@ -421,25 +641,29 @@
         </div>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>日期時間</th>
-            <th>類型</th>
-            <th>分類帳本</th>
-            <th>金額</th>
-            <th>備註</th>
-            <th>刪除</th>
-          </tr>
-        </thead>
-        <tbody id="recordsTbody">
-          <!-- 動態填入 -->
-        </tbody>
-      </table>
-      <div id="noDataHint" class="no-data" style="display:none;">目前沒有任何紀錄，可以先從上面新增一筆 ✏️</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>日期時間</th>
+              <th>類型</th>
+              <th>分類帳本</th>
+              <th>金額</th>
+              <th>備註</th>
+              <th>刪除</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTbody">
+            <!-- 動態填入 -->
+          </tbody>
+        </table>
+      </div>
+      <div id="noDataHint" class="no-data" style="display:none;">
+        目前沒有任何紀錄，可以先從上面新增一筆 ✏️
+      </div>
     </section>
 
-    <div class="small-text" style="text-align:right; margin-top:8px;">
+    <div class="footer-note">
       資料僅儲存在此裝置的瀏覽器（localStorage），不會上傳到伺服器。
     </div>
   </div>
@@ -452,6 +676,7 @@
     // === Elements ===
     const datetimeInput = document.getElementById("datetimeInput");
     const nowBtn = document.getElementById("nowBtn");
+    const quickTodayBtn = document.getElementById("quickTodayBtn");
     const typeInput = document.getElementById("typeInput");
     const categorySelect = document.getElementById("categorySelect");
     const addCategoryBtn = document.getElementById("addCategoryBtn");
@@ -820,7 +1045,6 @@
         customRangeGroup.style.display = "none";
       }
 
-      // 切換時間範圍後，重新渲染列表 & 區間統計
       renderRecords();
     }
 
@@ -849,12 +1073,18 @@
       customRangeGroup.style.display = "none"; // 預設非自訂
     }
 
+    function initQuickTodayBtn() {
+      if (!quickTodayBtn) return;
+      quickTodayBtn.addEventListener("click", setNowToInput);
+    }
+
     // 初始化
     function init() {
       loadFromStorage();
       renderCategoryOptions();
       setNowToInput();
       initRangeButtons();
+      initQuickTodayBtn();
       renderRecords();
 
       nowBtn.addEventListener("click", setNowToInput);
