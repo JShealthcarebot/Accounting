@@ -58,6 +58,7 @@
       color: #444;
     }
     input[type="datetime-local"],
+    input[type="date"],
     input[type="number"],
     input[type="text"],
     select {
@@ -174,7 +175,8 @@
       font-size: 0.75rem;
       color: #777;
     }
-    /* 總計卡片 */
+
+    /* 總計卡片（全部紀錄） */
     .summary-card {
       margin-top: 6px;
       margin-bottom: 10px;
@@ -208,6 +210,23 @@
     }
     .summary-balance {
       color: #1e3a8a;
+    }
+
+    /* 區間篩選區 */
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .filter-row .field {
+      min-width: 110px;
+    }
+    .hint-text {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 2px;
     }
 
     @media (max-width: 600px) {
@@ -303,9 +322,72 @@
       </div>
     </div>
 
+    <!-- 區間 + 分類總計 -->
+    <div class="section-title">區間 & 分類總計</div>
+    <section>
+      <div class="filter-row">
+        <div class="field">
+          <label for="rangeType">時間範圍</label>
+          <select id="rangeType">
+            <option value="all">全部紀錄</option>
+            <option value="year">今年</option>
+            <option value="month">本月</option>
+            <option value="day">今天</option>
+            <option value="custom">自訂區間</option>
+          </select>
+        </div>
+        <div class="field" id="customRangeGroup" style="display:none;">
+          <label>自訂日期區間</label>
+          <div class="flex-row" style="gap:4px; margin-bottom:0;">
+            <input type="date" id="rangeStart">
+            <span style="align-self:center; font-size:0.8rem;">～</span>
+            <input type="date" id="rangeEnd">
+          </div>
+        </div>
+        <div class="field" style="align-self:flex-end; min-width:auto;">
+          <button class="btn-secondary" id="applyRangeBtn">套用篩選</button>
+        </div>
+      </div>
+      <div class="hint-text">說明：選擇想查看的期間，下面會顯示該期間各分類的收入、支出與結餘。</div>
+
+      <!-- 區間總計小卡 -->
+      <div class="summary-card" id="rangeSummaryCard">
+        <div class="summary-item">
+          <div class="summary-label">此區間收入</div>
+          <div class="summary-value summary-income" id="rangeIncome">0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">此區間支出</div>
+          <div class="summary-value summary-expense" id="rangeExpense">0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">此區間結餘</div>
+          <div class="summary-value summary-balance" id="rangeBalance">0</div>
+        </div>
+      </div>
+
+      <!-- 區間內各分類統計 -->
+      <table>
+        <thead>
+          <tr>
+            <th>分類帳本</th>
+            <th>收入</th>
+            <th>支出</th>
+            <th>結餘</th>
+          </tr>
+        </thead>
+        <tbody id="categorySummaryTbody">
+          <!-- 動態填入 -->
+        </tbody>
+      </table>
+      <div id="categorySummaryHint" class="no-data" style="display:none;">此區間內目前沒有任何紀錄。</div>
+    </section>
+
+    <hr>
+
     <!-- 紀錄列表 -->
     <div class="records-header">
-      <div class="records-header-title">紀錄列表</div>
+      <div class="records-header-title">紀錄列表（全部）</div>
       <button class="btn-danger" id="clearAllBtn">清空全部紀錄</button>
     </div>
 
@@ -352,10 +434,23 @@
     const recordsTbody = document.getElementById("recordsTbody");
     const noDataHint = document.getElementById("noDataHint");
 
-    // 總計欄位
+    // 全部紀錄總計欄位
     const totalIncomeEl = document.getElementById("totalIncome");
     const totalExpenseEl = document.getElementById("totalExpense");
     const totalBalanceEl = document.getElementById("totalBalance");
+
+    // 區間篩選相關
+    const rangeTypeSelect = document.getElementById("rangeType");
+    const customRangeGroup = document.getElementById("customRangeGroup");
+    const rangeStartInput = document.getElementById("rangeStart");
+    const rangeEndInput = document.getElementById("rangeEnd");
+    const applyRangeBtn = document.getElementById("applyRangeBtn");
+
+    const rangeIncomeEl = document.getElementById("rangeIncome");
+    const rangeExpenseEl = document.getElementById("rangeExpense");
+    const rangeBalanceEl = document.getElementById("rangeBalance");
+    const categorySummaryTbody = document.getElementById("categorySummaryTbody");
+    const categorySummaryHint = document.getElementById("categorySummaryHint");
 
     // === State ===
     let records = [];
@@ -407,7 +502,7 @@
       });
     }
 
-    // 計算並更新總計
+    // 計算並更新「全部紀錄」總計
     function updateTotals() {
       let income = 0;
       let expense = 0;
@@ -425,12 +520,25 @@
       totalBalanceEl.textContent = balance.toLocaleString();
     }
 
-    // 渲染紀錄表格
+    // 顯示用時間格式
+    function formatDatetimeDisplay(dtStr) {
+      if (!dtStr) return "";
+      // dtStr 預期格式：YYYY-MM-DDTHH:mm
+      const [datePart, timePart] = dtStr.split("T");
+      if (!datePart || !timePart) return dtStr;
+      const [y, m, d] = datePart.split("-");
+      const [hh, mm] = timePart.split(":");
+      return `${y}/${m}/${d} ${hh}:${mm}`;
+    }
+
+    // 渲染紀錄表格（全部）
     function renderRecords() {
       recordsTbody.innerHTML = "";
       if (records.length === 0) {
         noDataHint.style.display = "block";
         updateTotals(); // 全部清空時總計也歸零
+        // 區間分類也要清空
+        updateRangeSummary();
         return;
       } else {
         noDataHint.style.display = "none";
@@ -486,19 +594,116 @@
         recordsTbody.appendChild(tr);
       });
 
-      // 渲染完列表後，更新總計
+      // 渲染完列表後，更新總計 + 區間統計
       updateTotals();
+      updateRangeSummary();
     }
 
-    // 顯示用時間格式
-    function formatDatetimeDisplay(dtStr) {
-      if (!dtStr) return "";
-      // dtStr 預期格式：YYYY-MM-DDTHH:mm
-      const [datePart, timePart] = dtStr.split("T");
-      if (!datePart || !timePart) return dtStr;
-      const [y, m, d] = datePart.split("-");
-      const [hh, mm] = timePart.split(":");
-      return `${y}/${m}/${d} ${hh}:${mm}`;
+    // 取得目前篩選條件下的紀錄
+    function getFilteredRecordsByRange() {
+      const type = rangeTypeSelect.value;
+      if (records.length === 0) return [];
+
+      const now = new Date();
+      const nowYear = now.getFullYear();
+      const nowMonth = now.getMonth(); // 0-11
+      const nowDate = now.getDate();
+
+      return records.filter(rec => {
+        if (!rec.datetime) return false;
+        const recDate = new Date(rec.datetime);
+
+        if (type === "all") {
+          return true;
+        } else if (type === "year") {
+          return recDate.getFullYear() === nowYear;
+        } else if (type === "month") {
+          return recDate.getFullYear() === nowYear &&
+                 recDate.getMonth() === nowMonth;
+        } else if (type === "day") {
+          return recDate.getFullYear() === nowYear &&
+                 recDate.getMonth() === nowMonth &&
+                 recDate.getDate() === nowDate;
+        } else if (type === "custom") {
+          const startStr = rangeStartInput.value;
+          const endStr = rangeEndInput.value;
+          if (!startStr || !endStr) return false;
+          const start = new Date(startStr + "T00:00:00");
+          const end = new Date(endStr + "T23:59:59");
+          if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
+          return recDate >= start && recDate <= end;
+        }
+        return true;
+      });
+    }
+
+    // 更新「區間 & 分類總計」
+    function updateRangeSummary() {
+      const filtered = getFilteredRecordsByRange();
+
+      if (!filtered || filtered.length === 0) {
+        rangeIncomeEl.textContent = "0";
+        rangeExpenseEl.textContent = "0";
+        rangeBalanceEl.textContent = "0";
+        categorySummaryTbody.innerHTML = "";
+        categorySummaryHint.style.display = "block";
+        return;
+      }
+
+      categorySummaryHint.style.display = "none";
+
+      // 區間總收入/支出
+      let income = 0;
+      let expense = 0;
+
+      // 各分類彙總： { [category]: { income, expense } }
+      const map = {};
+
+      filtered.forEach(rec => {
+        const cat = rec.category || "未分類";
+        if (!map[cat]) {
+          map[cat] = { income: 0, expense: 0 };
+        }
+        if (rec.type === "income") {
+          income += rec.amount;
+          map[cat].income += rec.amount;
+        } else if (rec.type === "expense") {
+          expense += rec.amount;
+          map[cat].expense += rec.amount;
+        }
+      });
+
+      const balance = income - expense;
+      rangeIncomeEl.textContent = income.toLocaleString();
+      rangeExpenseEl.textContent = expense.toLocaleString();
+      rangeBalanceEl.textContent = balance.toLocaleString();
+
+      // 渲染分類表格
+      categorySummaryTbody.innerHTML = "";
+
+      const cats = Object.keys(map).sort();
+      cats.forEach(cat => {
+        const info = map[cat];
+        const row = document.createElement("tr");
+
+        const tdCat = document.createElement("td");
+        tdCat.textContent = cat;
+        row.appendChild(tdCat);
+
+        const tdIn = document.createElement("td");
+        tdIn.textContent = info.income.toLocaleString();
+        row.appendChild(tdIn);
+
+        const tdOut = document.createElement("td");
+        tdOut.textContent = info.expense.toLocaleString();
+        row.appendChild(tdOut);
+
+        const tdBal = document.createElement("td");
+        tdBal.textContent = (info.income - info.expense).toLocaleString();
+        row.appendChild(tdBal);
+
+        categorySummaryTbody.appendChild(row);
+      });
     }
 
     // 新增分類
@@ -564,17 +769,50 @@
       renderRecords();
     }
 
+    // 處理時間範圍選擇（顯示/隱藏自訂日期）
+    function handleRangeTypeChange() {
+      if (rangeTypeSelect.value === "custom") {
+        customRangeGroup.style.display = "block";
+      } else {
+        customRangeGroup.style.display = "none";
+      }
+    }
+
+    // 套用篩選按鈕
+    function handleApplyRange() {
+      if (rangeTypeSelect.value === "custom") {
+        const s = rangeStartInput.value;
+        const e = rangeEndInput.value;
+        if (!s || !e) {
+          alert("請選擇自訂區間的起訖日期");
+          return;
+        }
+      }
+      updateRangeSummary();
+    }
+
     // 初始化
     function init() {
       loadFromStorage();
       renderCategoryOptions();
       setNowToInput();
-      renderRecords();
+      renderRecords();      // 內部會順便更新總計與區間統計
+      updateTotals();
+      updateRangeSummary();
 
       nowBtn.addEventListener("click", setNowToInput);
       addCategoryBtn.addEventListener("click", handleAddCategory);
       addRecordBtn.addEventListener("click", handleAddRecord);
       clearAllBtn.addEventListener("click", handleClearAll);
+
+      rangeTypeSelect.addEventListener("change", () => {
+        handleRangeTypeChange();
+        // 不是自訂時，直接刷新區間統計
+        if (rangeTypeSelect.value !== "custom") {
+          updateRangeSummary();
+        }
+      });
+      applyRangeBtn.addEventListener("click", handleApplyRange);
     }
 
     document.addEventListener("DOMContentLoaded", init);
