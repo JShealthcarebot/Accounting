@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>個人記帳本</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: linear-gradient(135deg, #f5f7ff, #e3f6ff);
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 18px 14px 22px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-weight: 600;
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .field {
+      flex: 1;
+      min-width: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 0.85rem;
+    }
+    label {
+      color: #444;
+    }
+    input[type="datetime-local"],
+    input[type="number"],
+    input[type="text"],
+    select {
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid #d0d7e2;
+      outline: none;
+      font-size: 0.9rem;
+      background-color: #f8fbff;
+      transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+    }
+    input:focus,
+    select:focus {
+      border-color: #4a8df6;
+      box-shadow: 0 0 0 2px rgba(74, 141, 246, 0.2);
+      background-color: #ffffff;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 15px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s, background-color 0.2s;
+      white-space: nowrap;
+    }
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4a8df6, #6bc5ff);
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(74, 141, 246, 0.4);
+    }
+    .btn-secondary {
+      background: #eef3ff;
+      color: #345;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
+    .btn-danger {
+      background: #ff6b6b;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(255, 107, 107, 0.4);
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+    hr {
+      border: none;
+      border-top: 1px dashed #d2d8e5;
+      margin: 12px 0;
+    }
+    .records-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .records-header-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    thead {
+      background: #f5f7ff;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    th, td {
+      padding: 6px 4px;
+      text-align: center;
+      border-bottom: 1px solid #edf0fa;
+    }
+    th {
+      font-weight: 600;
+      color: #555;
+    }
+    tbody tr:nth-child(odd) {
+      background: #fafbff;
+    }
+    tbody tr:hover {
+      background: #eef4ff;
+    }
+    .note-cell {
+      text-align: left;
+    }
+    .type-income {
+      color: #0b9b5c;
+      font-weight: 600;
+    }
+    .type-expense {
+      color: #e45a5a;
+      font-weight: 600;
+    }
+    .no-data {
+      text-align: center;
+      padding: 8px;
+      color: #777;
+    }
+    .small-text {
+      font-size: 0.75rem;
+      color: #777;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 14px 10px 18px;
+        border-radius: 18px;
+      }
+      h1 {
+        font-size: 1.35rem;
+      }
+      .flex-row {
+        flex-direction: column;
+      }
+      table {
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>個人記帳本</h1>
+    <div class="subtitle">記下每一筆收入與支出，讓錢錢知道自己要去哪 💸</div>
+
+    <!-- 新增紀錄區 -->
+    <div class="section-title">新增紀錄</div>
+    <section>
+      <div class="flex-row">
+        <div class="field">
+          <label for="datetimeInput">日期時間</label>
+          <input type="datetime-local" id="datetimeInput">
+          <button class="btn-secondary" id="nowBtn" style="margin-top:3px;">使用現在時間</button>
+        </div>
+
+        <div class="field">
+          <label for="typeInput">類型</label>
+          <select id="typeInput">
+            <option value="expense">支出</option>
+            <option value="income">收入</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="categorySelect">分類帳本</label>
+          <select id="categorySelect"></select>
+        </div>
+      </div>
+
+      <div class="flex-row">
+        <div class="field">
+          <label for="amountInput">金額（正數）</label>
+          <input type="number" id="amountInput" min="0" step="1" placeholder="例如 120">
+        </div>
+        <div class="field" style="flex:2;">
+          <label for="noteInput">備註</label>
+          <input type="text" id="noteInput" placeholder="例如：午餐、Uber、薪水、獎金…">
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:4px;">自訂分類帳本</div>
+      <div class="flex-row">
+        <div class="field">
+          <label for="newCategoryInput">新增分類名稱</label>
+          <input type="text" id="newCategoryInput" placeholder="例如：旅遊、投資帳、澳門專用帳本…">
+        </div>
+        <div class="field" style="align-self:flex-end;">
+          <button class="btn-secondary" id="addCategoryBtn">＋ 新增分類</button>
+        </div>
+      </div>
+      <div class="small-text">提示：分類清單會儲存在瀏覽器（localStorage），下次打開還會在。</div>
+
+      <div class="btn-group">
+        <button class="btn-primary" id="addRecordBtn">＋ 新增紀錄</button>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- 紀錄列表 -->
+    <div class="records-header">
+      <div class="records-header-title">紀錄列表</div>
+      <button class="btn-danger" id="clearAllBtn">清空全部紀錄</button>
+    </div>
+
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>日期時間</th>
+            <th>類型</th>
+            <th>分類帳本</th>
+            <th>金額</th>
+            <th>備註</th>
+            <th>刪除</th>
+          </tr>
+        </thead>
+        <tbody id="recordsTbody">
+          <!-- 動態填入 -->
+        </tbody>
+      </table>
+      <div id="noDataHint" class="no-data" style="display:none;">目前沒有任何紀錄，可以先從上面新增一筆 ✏️</div>
+    </section>
+
+    <div class="small-text" style="text-align:right; margin-top:8px;">
+      資料僅儲存在此裝置的瀏覽器（localStorage），不會上傳到伺服器。
+    </div>
+  </div>
+
+  <script>
+    // === LocalStorage Keys ===
+    const STORAGE_KEY_RECORDS = "ledger_records_v1";
+    const STORAGE_KEY_CATEGORIES = "ledger_categories_v1";
+
+    // === Elements ===
+    const datetimeInput = document.getElementById("datetimeInput");
+    const nowBtn = document.getElementById("nowBtn");
+    const typeInput = document.getElementById("typeInput");
+    const categorySelect = document.getElementById("categorySelect");
+    const amountInput = document.getElementById("amountInput");
+    const noteInput = document.getElementById("noteInput");
+    const newCategoryInput = document.getElementById("newCategoryInput");
+    const addCategoryBtn = document.getElementById("addCategoryBtn");
+    const addRecordBtn = document.getElementById("addRecordBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const recordsTbody = document.getElementById("recordsTbody");
+    const noDataHint = document.getElementById("noDataHint");
+
+    // === State ===
+    let records = [];
+    let categories = [];
+
+    // 取得現在時間並格式化成 datetime-local
+    function getNowForInput() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function setNowToInput() {
+      datetimeInput.value = getNowForInput();
+    }
+
+    // 讀取 LocalStorage
+    function loadFromStorage() {
+      const recStr = localStorage.getItem(STORAGE_KEY_RECORDS);
+      const catStr = localStorage.getItem(STORAGE_KEY_CATEGORIES);
+
+      records = recStr ? JSON.parse(recStr) : [];
+      categories = catStr ? JSON.parse(catStr) : [];
+      if (!Array.isArray(categories) || categories.length === 0) {
+        categories = ["一般", "飲食", "交通", "生活", "娛樂", "投資", "醫療", "其他"];
+      }
+    }
+
+    // 儲存到 LocalStorage
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+    }
+    function saveCategories() {
+      localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(categories));
+    }
+
+    // 更新分類下拉選單
+    function renderCategoryOptions() {
+      categorySelect.innerHTML = "";
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+    }
+
+    // 渲染紀錄表格
+    function renderRecords() {
+      recordsTbody.innerHTML = "";
+      if (records.length === 0) {
+        noDataHint.style.display = "block";
+        return;
+      } else {
+        noDataHint.style.display = "none";
+      }
+
+      // 依時間排序（新到舊）
+      const sorted = [...records].sort((a, b) => {
+        if (a.datetime === b.datetime) return 0;
+        return a.datetime < b.datetime ? 1 : -1;
+      });
+
+      sorted.forEach(rec => {
+        const tr = document.createElement("tr");
+
+        const tdTime = document.createElement("td");
+        tdTime.textContent = formatDatetimeDisplay(rec.datetime);
+        tr.appendChild(tdTime);
+
+        const tdType = document.createElement("td");
+        tdType.textContent = rec.type === "income" ? "收入" : "支出";
+        tdType.className = rec.type === "income" ? "type-income" : "type-expense";
+        tr.appendChild(tdType);
+
+        const tdCat = document.createElement("td");
+        tdCat.textContent = rec.category || "";
+        tr.appendChild(tdCat);
+
+        const tdAmount = document.createElement("td");
+        tdAmount.textContent = rec.amount.toLocaleString();
+        tr.appendChild(tdAmount);
+
+        const tdNote = document.createElement("td");
+        tdNote.textContent = rec.note || "";
+        tdNote.className = "note-cell";
+        tr.appendChild(tdNote);
+
+        const tdDel = document.createElement("td");
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "刪除";
+        delBtn.className = "btn-danger";
+        delBtn.style.padding = "4px 10px";
+        delBtn.style.fontSize = "0.75rem";
+        delBtn.addEventListener("click", () => {
+          if (confirm("確定要刪除這筆紀錄嗎？")) {
+            records = records.filter(r => r.id !== rec.id);
+            saveRecords();
+            renderRecords();
+          }
+        });
+        tdDel.appendChild(delBtn);
+        tr.appendChild(tdDel);
+
+        recordsTbody.appendChild(tr);
+      });
+    }
+
+    // 顯示用時間格式
+    function formatDatetimeDisplay(dtStr) {
+      if (!dtStr) return "";
+      // dtStr 預期格式：YYYY-MM-DDTHH:mm
+      const [datePart, timePart] = dtStr.split("T");
+      if (!datePart || !timePart) return dtStr;
+      const [y, m, d] = datePart.split("-");
+      const [hh, mm] = timePart.split(":");
+      return `${y}/${m}/${d} ${hh}:${mm}`;
+    }
+
+    // 新增分類
+    function handleAddCategory() {
+      const name = newCategoryInput.value.trim();
+      if (!name) {
+        alert("請輸入分類名稱");
+        return;
+      }
+      if (categories.includes(name)) {
+        alert("此分類已存在");
+        return;
+      }
+      categories.push(name);
+      saveCategories();
+      renderCategoryOptions();
+      categorySelect.value = name;
+      newCategoryInput.value = "";
+    }
+
+    // 新增紀錄
+    function handleAddRecord() {
+      const dt = datetimeInput.value;
+      const type = typeInput.value;
+      const category = categorySelect.value;
+      const amountStr = amountInput.value;
+      const note = noteInput.value.trim();
+
+      if (!dt) {
+        alert("請選擇日期時間");
+        return;
+      }
+      if (!amountStr || Number(amountStr) <= 0) {
+        alert("請輸入大於 0 的金額");
+        return;
+      }
+      const amount = Number(amountStr);
+
+      const record = {
+        id: Date.now().toString() + Math.random().toString(16).slice(2),
+        datetime: dt,
+        type,
+        category,
+        amount,
+        note,
+        createdAt: new Date().toISOString()
+      };
+
+      records.push(record);
+      saveRecords();
+      renderRecords();
+
+      // 清空金額與備註，時間保留（方便連續記錄同一時間附近）
+      amountInput.value = "";
+      noteInput.value = "";
+    }
+
+    // 清空全部紀錄
+    function handleClearAll() {
+      if (!confirm("確定要刪除所有紀錄嗎？此操作無法復原。")) return;
+      records = [];
+      saveRecords();
+      renderRecords();
+    }
+
+    // 初始化
+    function init() {
+      loadFromStorage();
+      renderCategoryOptions();
+      setNowToInput();
+      renderRecords();
+
+      nowBtn.addEventListener("click", setNowToInput);
+      addCategoryBtn.addEventListener("click", handleAddCategory);
+      addRecordBtn.addEventListener("click", handleAddRecord);
+      clearAllBtn.addEventListener("click", handleClearAll);
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
