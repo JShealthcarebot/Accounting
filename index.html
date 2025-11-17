@@ -229,6 +229,29 @@
       margin-top: 2px;
     }
 
+    /* 時間範圍小按鈕 */
+    .range-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .btn-chip {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #f1f4ff;
+      color: #345;
+      font-size: 0.8rem;
+      border: 1px solid transparent;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .btn-chip-active {
+      background: #4a8df6;
+      color: #fff;
+      border-color: #2f6fe0;
+      box-shadow: 0 3px 10px rgba(74,141,246,0.4);
+    }
+
     @media (max-width: 600px) {
       .container {
         padding: 14px 10px 18px;
@@ -326,15 +349,15 @@
     <div class="section-title">區間 & 分類總計</div>
     <section>
       <div class="filter-row">
-        <div class="field">
-          <label for="rangeType">時間範圍</label>
-          <select id="rangeType">
-            <option value="all">全部紀錄</option>
-            <option value="year">今年</option>
-            <option value="month">本月</option>
-            <option value="day">今天</option>
-            <option value="custom">自訂區間</option>
-          </select>
+        <div class="field" style="flex-basis:100%;">
+          <label>時間範圍</label>
+          <div class="range-buttons">
+            <button type="button" class="btn-chip" data-range="all">全部</button>
+            <button type="button" class="btn-chip" data-range="year">今年</button>
+            <button type="button" class="btn-chip" data-range="month">本月</button>
+            <button type="button" class="btn-chip" data-range="day">今天</button>
+            <button type="button" class="btn-chip" data-range="custom">自訂</button>
+          </div>
         </div>
         <div class="field" id="customRangeGroup" style="display:none;">
           <label>自訂日期區間</label>
@@ -348,7 +371,7 @@
           <button class="btn-secondary" id="applyRangeBtn">套用篩選</button>
         </div>
       </div>
-      <div class="hint-text">說明：選擇想查看的期間，下面會顯示該期間各分類的收入、支出與結餘。</div>
+      <div class="hint-text">說明：預設為「今天」。可切換今年、本月、全部或自訂日期，下面會顯示該期間各分類的收入、支出與結餘。</div>
 
       <!-- 區間總計小卡 -->
       <div class="summary-card" id="rangeSummaryCard">
@@ -440,11 +463,11 @@
     const totalBalanceEl = document.getElementById("totalBalance");
 
     // 區間篩選相關
-    const rangeTypeSelect = document.getElementById("rangeType");
     const customRangeGroup = document.getElementById("customRangeGroup");
     const rangeStartInput = document.getElementById("rangeStart");
     const rangeEndInput = document.getElementById("rangeEnd");
     const applyRangeBtn = document.getElementById("applyRangeBtn");
+    const rangeButtons = document.querySelectorAll(".btn-chip");
 
     const rangeIncomeEl = document.getElementById("rangeIncome");
     const rangeExpenseEl = document.getElementById("rangeExpense");
@@ -455,6 +478,7 @@
     // === State ===
     let records = [];
     let categories = [];
+    let currentRangeType = "day"; // 預設為今天
 
     // 取得現在時間並格式化成 datetime-local
     function getNowForInput() {
@@ -523,7 +547,6 @@
     // 顯示用時間格式
     function formatDatetimeDisplay(dtStr) {
       if (!dtStr) return "";
-      // dtStr 預期格式：YYYY-MM-DDTHH:mm
       const [datePart, timePart] = dtStr.split("T");
       if (!datePart || !timePart) return dtStr;
       const [y, m, d] = datePart.split("-");
@@ -536,8 +559,7 @@
       recordsTbody.innerHTML = "";
       if (records.length === 0) {
         noDataHint.style.display = "block";
-        updateTotals(); // 全部清空時總計也歸零
-        // 區間分類也要清空
+        updateTotals();
         updateRangeSummary();
         return;
       } else {
@@ -594,14 +616,13 @@
         recordsTbody.appendChild(tr);
       });
 
-      // 渲染完列表後，更新總計 + 區間統計
       updateTotals();
       updateRangeSummary();
     }
 
     // 取得目前篩選條件下的紀錄
     function getFilteredRecordsByRange() {
-      const type = rangeTypeSelect.value;
+      const type = currentRangeType;
       if (records.length === 0) return [];
 
       const now = new Date();
@@ -652,11 +673,8 @@
 
       categorySummaryHint.style.display = "none";
 
-      // 區間總收入/支出
       let income = 0;
       let expense = 0;
-
-      // 各分類彙總： { [category]: { income, expense } }
       const map = {};
 
       filtered.forEach(rec => {
@@ -678,9 +696,7 @@
       rangeExpenseEl.textContent = expense.toLocaleString();
       rangeBalanceEl.textContent = balance.toLocaleString();
 
-      // 渲染分類表格
       categorySummaryTbody.innerHTML = "";
-
       const cats = Object.keys(map).sort();
       cats.forEach(cat => {
         const info = map[cat];
@@ -756,7 +772,6 @@
       saveRecords();
       renderRecords();
 
-      // 清空金額與備註，時間保留（方便連續記錄同一時間附近）
       amountInput.value = "";
       noteInput.value = "";
     }
@@ -769,18 +784,32 @@
       renderRecords();
     }
 
-    // 處理時間範圍選擇（顯示/隱藏自訂日期）
-    function handleRangeTypeChange() {
-      if (rangeTypeSelect.value === "custom") {
+    // 處理時間範圍按鈕點擊
+    function handleRangeButtonClick(e) {
+      const btn = e.currentTarget;
+      const range = btn.getAttribute("data-range");
+      currentRangeType = range;
+
+      // 切換 active 樣式
+      rangeButtons.forEach(b => b.classList.remove("btn-chip-active"));
+      btn.classList.add("btn-chip-active");
+
+      // 自訂區間顯示切換
+      if (range === "custom") {
         customRangeGroup.style.display = "block";
       } else {
         customRangeGroup.style.display = "none";
       }
+
+      // 非自訂時直接更新
+      if (range !== "custom") {
+        updateRangeSummary();
+      }
     }
 
-    // 套用篩選按鈕
+    // 套用篩選按鈕（主要給自訂區間用）
     function handleApplyRange() {
-      if (rangeTypeSelect.value === "custom") {
+      if (currentRangeType === "custom") {
         const s = rangeStartInput.value;
         const e = rangeEndInput.value;
         if (!s || !e) {
@@ -791,27 +820,30 @@
       updateRangeSummary();
     }
 
+    // 初始化時間範圍按鈕狀態（預設今天）
+    function initRangeButtons() {
+      rangeButtons.forEach(btn => {
+        const range = btn.getAttribute("data-range");
+        if (range === currentRangeType) {
+          btn.classList.add("btn-chip-active");
+        }
+        btn.addEventListener("click", handleRangeButtonClick);
+      });
+      customRangeGroup.style.display = "none"; // 預設非自訂
+    }
+
     // 初始化
     function init() {
       loadFromStorage();
       renderCategoryOptions();
       setNowToInput();
+      initRangeButtons();
       renderRecords();      // 內部會順便更新總計與區間統計
-      updateTotals();
-      updateRangeSummary();
 
       nowBtn.addEventListener("click", setNowToInput);
       addCategoryBtn.addEventListener("click", handleAddCategory);
       addRecordBtn.addEventListener("click", handleAddRecord);
       clearAllBtn.addEventListener("click", handleClearAll);
-
-      rangeTypeSelect.addEventListener("change", () => {
-        handleRangeTypeChange();
-        // 不是自訂時，直接刷新區間統計
-        if (rangeTypeSelect.value !== "custom") {
-          updateRangeSummary();
-        }
-      });
       applyRangeBtn.addEventListener("click", handleApplyRange);
     }
 
