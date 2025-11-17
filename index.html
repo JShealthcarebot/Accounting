@@ -402,11 +402,25 @@
 
     <!-- 紀錄列表 -->
     <div class="records-header">
-      <div class="records-header-title">紀錄列表（全部）</div>
+      <div class="records-header-title">紀錄列表（依時間範圍）</div>
       <button class="btn-danger" id="clearAllBtn">清空全部紀錄</button>
     </div>
 
     <section>
+      <!-- 列表時間範圍按鈕（與上面共用同一範圍） -->
+      <div class="filter-row">
+        <div class="field" style="flex-basis:100%;">
+          <label>列表時間範圍</label>
+          <div class="range-buttons">
+            <button type="button" class="btn-chip" data-range="all">全部</button>
+            <button type="button" class="btn-chip" data-range="year">今年</button>
+            <button type="button" class="btn-chip" data-range="month">本月</button>
+            <button type="button" class="btn-chip" data-range="day">今天</button>
+            <button type="button" class="btn-chip" data-range="custom">自訂</button>
+          </div>
+        </div>
+      </div>
+
       <table>
         <thead>
           <tr>
@@ -545,72 +559,6 @@
       return `${y}/${m}/${d} ${hh}:${mm}`;
     }
 
-    // 渲染紀錄表格（全部）
-    function renderRecords() {
-      recordsTbody.innerHTML = "";
-      if (records.length === 0) {
-        noDataHint.style.display = "block";
-        updateTotals();
-        updateRangeSummary();
-        return;
-      } else {
-        noDataHint.style.display = "none";
-      }
-
-      // 依時間排序（新到舊）
-      const sorted = [...records].sort((a, b) => {
-        if (a.datetime === b.datetime) return 0;
-        return a.datetime < b.datetime ? 1 : -1;
-      });
-
-      sorted.forEach(rec => {
-        const tr = document.createElement("tr");
-
-        const tdTime = document.createElement("td");
-        tdTime.textContent = formatDatetimeDisplay(rec.datetime);
-        tr.appendChild(tdTime);
-
-        const tdType = document.createElement("td");
-        tdType.textContent = rec.type === "income" ? "收入" : "支出";
-        tdType.className = rec.type === "income" ? "type-income" : "type-expense";
-        tr.appendChild(tdType);
-
-        const tdCat = document.createElement("td");
-        tdCat.textContent = rec.category || "";
-        tr.appendChild(tdCat);
-
-        const tdAmount = document.createElement("td");
-        tdAmount.textContent = rec.amount.toLocaleString();
-        tr.appendChild(tdAmount);
-
-        const tdNote = document.createElement("td");
-        tdNote.textContent = rec.note || "";
-        tdNote.className = "note-cell";
-        tr.appendChild(tdNote);
-
-        const tdDel = document.createElement("td");
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "刪除";
-        delBtn.className = "btn-danger";
-        delBtn.style.padding = "4px 10px";
-        delBtn.style.fontSize = "0.75rem";
-        delBtn.addEventListener("click", () => {
-          if (confirm("確定要刪除這筆紀錄嗎？")) {
-            records = records.filter(r => r.id !== rec.id);
-            saveRecords();
-            renderRecords();
-          }
-        });
-        tdDel.appendChild(delBtn);
-        tr.appendChild(tdDel);
-
-        recordsTbody.appendChild(tr);
-      });
-
-      updateTotals();
-      updateRangeSummary();
-    }
-
     // 取得目前篩選條件下的紀錄
     function getFilteredRecordsByRange() {
       const type = currentRangeType;
@@ -647,6 +595,80 @@
         }
         return true;
       });
+    }
+
+    // 渲染紀錄表格（依目前時間範圍）
+    function renderRecords() {
+      recordsTbody.innerHTML = "";
+
+      if (records.length === 0) {
+        noDataHint.textContent = "目前沒有任何紀錄，可以先從上面新增一筆 ✏️";
+        noDataHint.style.display = "block";
+        updateTotals();
+        updateRangeSummary();
+        return;
+      }
+
+      const list = getFilteredRecordsByRange();
+      if (!list || list.length === 0) {
+        noDataHint.textContent = "此時間範圍內沒有紀錄。";
+        noDataHint.style.display = "block";
+      } else {
+        noDataHint.style.display = "none";
+
+        // 依時間排序（新到舊）
+        const sorted = [...list].sort((a, b) => {
+          if (a.datetime === b.datetime) return 0;
+          return a.datetime < b.datetime ? 1 : -1;
+        });
+
+        sorted.forEach(rec => {
+          const tr = document.createElement("tr");
+
+          const tdTime = document.createElement("td");
+          tdTime.textContent = formatDatetimeDisplay(rec.datetime);
+          tr.appendChild(tdTime);
+
+          const tdType = document.createElement("td");
+          tdType.textContent = rec.type === "income" ? "收入" : "支出";
+          tdType.className = rec.type === "income" ? "type-income" : "type-expense";
+          tr.appendChild(tdType);
+
+          const tdCat = document.createElement("td");
+          tdCat.textContent = rec.category || "";
+          tr.appendChild(tdCat);
+
+          const tdAmount = document.createElement("td");
+          tdAmount.textContent = rec.amount.toLocaleString();
+          tr.appendChild(tdAmount);
+
+          const tdNote = document.createElement("td");
+          tdNote.textContent = rec.note || "";
+          tdNote.className = "note-cell";
+          tr.appendChild(tdNote);
+
+          const tdDel = document.createElement("td");
+          const delBtn = document.createElement("button");
+          delBtn.textContent = "刪除";
+          delBtn.className = "btn-danger";
+          delBtn.style.padding = "4px 10px";
+          delBtn.style.fontSize = "0.75rem";
+          delBtn.addEventListener("click", () => {
+            if (confirm("確定要刪除這筆紀錄嗎？")) {
+              records = records.filter(r => r.id !== rec.id);
+              saveRecords();
+              renderRecords();
+            }
+          });
+          tdDel.appendChild(delBtn);
+          tr.appendChild(tdDel);
+
+          recordsTbody.appendChild(tr);
+        });
+      }
+
+      updateTotals();
+      updateRangeSummary();
     }
 
     // 更新「區間 & 分類總計」
@@ -776,15 +798,20 @@
       renderRecords();
     }
 
-    // 處理時間範圍按鈕點擊
+    // 處理時間範圍按鈕點擊（兩組按鈕共用）
     function handleRangeButtonClick(e) {
       const btn = e.currentTarget;
       const range = btn.getAttribute("data-range");
       currentRangeType = range;
 
-      // 切換 active 樣式
-      rangeButtons.forEach(b => b.classList.remove("btn-chip-active"));
-      btn.classList.add("btn-chip-active");
+      // 同一時間範圍的按鈕全部亮起
+      rangeButtons.forEach(b => {
+        if (b.getAttribute("data-range") === range) {
+          b.classList.add("btn-chip-active");
+        } else {
+          b.classList.remove("btn-chip-active");
+        }
+      });
 
       // 自訂區間顯示切換
       if (range === "custom") {
@@ -793,10 +820,8 @@
         customRangeGroup.style.display = "none";
       }
 
-      // 非自訂時直接更新
-      if (range !== "custom") {
-        updateRangeSummary();
-      }
+      // 切換時間範圍後，重新渲染列表 & 區間統計
+      renderRecords();
     }
 
     // 套用篩選按鈕（主要給自訂區間用）
@@ -809,7 +834,7 @@
           return;
         }
       }
-      updateRangeSummary();
+      renderRecords();
     }
 
     // 初始化時間範圍按鈕狀態（預設今天）
